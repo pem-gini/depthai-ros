@@ -21,6 +21,24 @@ Supported ROS versions:
 
 For usage check out respective git branches.
 
+### INSTALL REQUIREMENTS GINI
+
+```
+sudo apt install ros-humble-vision-msgs
+sudo apt install ros-humble-camera-info-manager
+sudo apt install ros-humble-tf2-geometry-msgs 
+sudo apt install ros-humble-xacro 
+sudo apt install libopencv-dev
+
+git submodule update --init --recursive
+cd depthai-core && mkdir build && cd build
+cmake .. -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr/local
+sudo make install
+
+cd ros2_ws
+./src/depthai-ros/build.sh
+```
+
 
 ### Install from ros binaries
 
