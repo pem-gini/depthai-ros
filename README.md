@@ -29,6 +29,7 @@ sudo apt install ros-humble-camera-info-manager
 sudo apt install ros-humble-tf2-geometry-msgs 
 sudo apt install ros-humble-xacro 
 sudo apt install libopencv-dev
+sudo apt install ros-humble-depth-image-proc 
 
 git submodule update --init --recursive
 cd depthai-core && mkdir build && cd build

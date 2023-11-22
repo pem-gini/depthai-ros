@@ -60,7 +60,8 @@ def launch_setup(context, *args, **kwargs):
                     remappings=[('depth_registered/image_rect', name+'/stereo/image_raw'),
                                 ('rgb/image_rect_color', rgb_topic_name),
                                 ('rgb/camera_info', name+'/rgb/camera_info'),
-                                ('points', name+'/points')]
+                                ('points', name+'/points')],
+                    parameters=[{"queue_size" : 1, "exact_sync": False}],
                     ),
             ],
         ),
