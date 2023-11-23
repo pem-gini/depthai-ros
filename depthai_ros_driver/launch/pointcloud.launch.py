@@ -31,41 +31,38 @@ def launch_setup(context, *args, **kwargs):
                                "cam_yaw": LaunchConfiguration("cam_yaw"),
                                "use_rviz": LaunchConfiguration("use_rviz")
                                }.items()),
-
-        # LoadComposableNodes(
-        #     target_container=name+"_container",
-        #     composable_node_descriptions=[
-        #             ComposableNode(
-        #             package='depth_image_proc',
-        #             plugin='depth_image_proc::PointCloudXyziNode',
-        #             name='point_cloud_xyzi',
-        #             remappings=[('depth/image_rect', name+'/stereo/image_raw'),
-        #                         ('intensity/image_rect', name+'/right/image_rect'),
-        #                         ('intensity/camera_info', name+'/stereo/camera_info'),
-        #                         ('points', name+'/points')
-        #                         ],
-        #             parameters=[{"queue_size" : 1, "exact_sync": False}],
-        #             ),
-        #     ],
-        # ),
-        ### try us the simplest depth image proc node, as the topic sync is beyond broken ... we only get ~2hz from that trash node
-        ### the simplest xyz converter only has 2 sync topics and outputs with ~6hz ... which is at least usable .... 
-        ### but holy shit we have to write that ourselfs i guess.
         LoadComposableNodes(
             target_container=name+"_container",
             composable_node_descriptions=[
                     ComposableNode(
                     package='depth_image_proc',
-                    plugin='depth_image_proc::PointCloudXyzNode',
-                    name='point_cloud_xyz',
-                    remappings=[('/image_rect', name+'/stereo/image_raw'),
-                                ('/camera_info', name+'/stereo/camera_info'),
-                                ('/points', name+'/points')
+                    plugin='depth_image_proc::PointCloudXyziNode',
+                    name='point_cloud_xyzi',
+                    remappings=[('depth/image_rect', name+'/stereo/image_raw'),
+                                ('intensity/image_rect', name+'/right/image_rect'),
+                                ('intensity/camera_info', name+'/stereo/camera_info'),
+                                ('points', name+'/points')
                                 ],
                     parameters=[{"queue_size" : 1, "exact_sync": False}],
                     ),
             ],
         ),
+
+    #     LoadComposableNodes(
+    #         target_container=name+"_container",
+    #         composable_node_descriptions=[
+    #                 ComposableNode(
+    #                 package='depth_image_proc',
+    #                 plugin='depth_image_proc::PointCloudXyzNode',
+    #                 name='point_cloud_xyz',
+    #                 remappings=[('/image_rect', name+'/stereo/image_raw'),
+    #                             ('/camera_info', name+'/stereo/camera_info'),
+    #                             ('/points', name+'/points')
+    #                             ],
+    #                 parameters=[{"queue_size" : 1, "exact_sync": False}],
+    #                 ),
+    #         ],
+    #     ),
 
     ]
 

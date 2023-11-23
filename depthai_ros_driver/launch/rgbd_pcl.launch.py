@@ -76,7 +76,7 @@ def generate_launch_description():
         DeclareLaunchArgument("cam_pos_x", default_value="0.0"),
         DeclareLaunchArgument("cam_pos_y", default_value="0.0"),
         DeclareLaunchArgument("cam_pos_z", default_value="0.0"),
-        DeclareLaunchArgument("cam_roll", default_value="0.0"),
+        DeclareLaunchArgument("cam_roll", default_value="0.785398163"),
         DeclareLaunchArgument("cam_pitch", default_value="0.0"),
         DeclareLaunchArgument("cam_yaw", default_value="0.0"),
         DeclareLaunchArgument("params_file", default_value=os.path.join(depthai_prefix, 'config', 'rgbd.yaml')),
