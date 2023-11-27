@@ -76,9 +76,15 @@ def generate_launch_description():
         DeclareLaunchArgument("cam_pos_x", default_value="0.0"),
         DeclareLaunchArgument("cam_pos_y", default_value="0.0"),
         DeclareLaunchArgument("cam_pos_z", default_value="0.0"),
+        ### do nothing
         DeclareLaunchArgument("cam_roll", default_value="0.0"),
         DeclareLaunchArgument("cam_pitch", default_value="0.0"),
         DeclareLaunchArgument("cam_yaw", default_value="0.0"),
+        ### set camera base_frame DIRECTLY ONTO rgb optical frame 
+        # DeclareLaunchArgument("cam_roll", default_value="3.14159"),
+        # DeclareLaunchArgument("cam_pitch", default_value="-1.5708"),
+        # DeclareLaunchArgument("cam_yaw", default_value="-1.5708"),
+        ### ...
         DeclareLaunchArgument("params_file", default_value=os.path.join(depthai_prefix, 'config', 'rgbd.yaml')),
         DeclareLaunchArgument("use_rviz", default_value="False"),
         DeclareLaunchArgument("rectify_rgb", default_value="False"),
