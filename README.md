@@ -31,10 +31,13 @@ sudo apt install ros-humble-xacro
 sudo apt install libopencv-dev
 sudo apt install ros-humble-depth-image-proc 
 
+
 git submodule update --init --recursive
 cd depthai-core && mkdir build && cd build
-cmake .. -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr/local
+cmake .. -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_INSTALL_PREFIX=/usr/local
 sudo make install
+
+### in case of problems when building, try to remove the pic pipeline build chache in /root/.hunter/ or ~/.hunter/
 
 cd ros2_ws
 ./src/depthai-ros/build.sh
