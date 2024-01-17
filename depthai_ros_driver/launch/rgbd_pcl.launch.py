@@ -9,6 +9,9 @@ from launch_ros.actions import LoadComposableNodes, Node
 from launch_ros.descriptions import ComposableNode
 from launch.conditions import IfCondition
 
+# scaleImages = 1.0
+# scaleImages = 0.25
+scaleImages = 0.125
 
 def launch_setup(context, *args, **kwargs):
     params_file = LaunchConfiguration("params_file")
@@ -34,32 +37,58 @@ def launch_setup(context, *args, **kwargs):
                                "use_rviz": LaunchConfiguration("use_rviz")
                                }.items()),
 
+        # LoadComposableNodes(
+        #     condition=IfCondition(LaunchConfiguration("rectify_rgb")),
+        #     target_container=name+"_container",
+        #     composable_node_descriptions=[
+        #             ComposableNode(
+        #                 package="image_proc",
+        #                 plugin="image_proc::RectifyNode",
+        #                 name="rectify_color_node",
+        #                 remappings=[('image', name+'/rgb/image_raw'),
+        #                             ('camera_info', name+'/rgb/camera_info'),
+        #                             ('image_rect', name+'/rgb/image_rect'),
+        #                             ('image_rect/compressed', name+'/rgb/image_rect/compressed'),
+        #                             ('image_rect/compressedDepth', name+'/rgb/image_rect/compressedDepth'),
+        #                             ('image_rect/theora', name+'/rgb/image_rect/theora')]
+        #             )
+        #     ]),
+
+        ##### resize images
         LoadComposableNodes(
-            condition=IfCondition(LaunchConfiguration("rectify_rgb")),
             target_container=name+"_container",
             composable_node_descriptions=[
                     ComposableNode(
-                        package="image_proc",
-                        plugin="image_proc::RectifyNode",
-                        name="rectify_color_node",
-                        remappings=[('image', name+'/rgb/image_raw'),
-                                    ('camera_info', name+'/rgb/camera_info'),
-                                    ('image_rect', name+'/rgb/image_rect'),
-                                    ('image_rect/compressed', name+'/rgb/image_rect/compressed'),
-                                    ('image_rect/compressedDepth', name+'/rgb/image_rect/compressedDepth'),
-                                    ('image_rect/theora', name+'/rgb/image_rect/theora')]
-                    )
-            ]),
-        LoadComposableNodes(
-            target_container=name+"_container",
-            composable_node_descriptions=[
+                        package='image_proc',
+                        plugin='image_proc::ResizeNode',
+                        name='depth_image_resize_node',
+                        remappings=[("image/image_raw", name+"/stereo/image_raw"),
+                                    ("image/camera_info", name+"/stereo/camera_info"),
+                                    ("resize/camera_info", name+"/stereo_resized/camera_info"),
+                                    ("resize/image_raw", name+"/stereo_resized/image_raw")],
+                        parameters=[{
+                            "scale_height" : scaleImages, "scale_width" : scaleImages, 
+                            ### disable interpolation (0 = nearest neighbor) as linear interp between depth values is bad
+                            "interpolation" : 0
+                        }], 
+                    ),
+                    ComposableNode(
+                        package='image_proc',
+                        plugin='image_proc::ResizeNode',
+                        name='rgb_image_resize_node',
+                        remappings=[("image/image_raw", rgb_topic_name),
+                                    ("image/camera_info", name+"/rgb/camera_info"),
+                                    ("resize/camera_info", name+"/rgb_resized/camera_info"),
+                                    ("resize/image_raw", name+"/rgb_resized/image_raw")],
+                        parameters=[{"scale_height" : scaleImages, "scale_width" : scaleImages}],
+                    ),
                     ComposableNode(
                     package='depth_image_proc',
                     plugin='depth_image_proc::PointCloudXyzrgbNode',
                     name='point_cloud_xyzrgb_node',
-                    remappings=[('depth_registered/image_rect', name+'/stereo/image_raw'),
-                                ('rgb/image_rect_color', rgb_topic_name),
-                                ('rgb/camera_info', name+'/rgb/camera_info'),
+                    remappings=[('depth_registered/image_rect', name+'/stereo_resized/image_raw'),
+                                ('rgb/image_rect_color', name+"/rgb_resized/image_raw"),
+                                ('rgb/camera_info', name+"/rgb_resized/camera_info"),
                                 ('points', name+'/points')],
                     parameters=[{"queue_size" : 1, "exact_sync": False}],
                     ),
