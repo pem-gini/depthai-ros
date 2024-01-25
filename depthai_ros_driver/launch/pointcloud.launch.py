@@ -8,6 +8,9 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import LoadComposableNodes
 from launch_ros.descriptions import ComposableNode
 
+scaleImages = 0.5
+# scaleImages = 0.125
+
 
 def launch_setup(context, *args, **kwargs):
     params_file = LaunchConfiguration("params_file")
@@ -16,7 +19,6 @@ def launch_setup(context, *args, **kwargs):
     name = LaunchConfiguration('name').perform(context)
     
     return [
-
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 os.path.join(depthai_prefix, 'launch', 'camera.launch.py')),
@@ -31,39 +33,47 @@ def launch_setup(context, *args, **kwargs):
                                "cam_yaw": LaunchConfiguration("cam_yaw"),
                                "use_rviz": LaunchConfiguration("use_rviz")
                                }.items()),
-        LoadComposableNodes(
+
+            LoadComposableNodes(
             target_container=name+"_container",
             composable_node_descriptions=[
-                    ComposableNode(
-                    package='depth_image_proc',
-                    plugin='depth_image_proc::PointCloudXyziNode',
-                    name='point_cloud_xyzi',
-                    remappings=[('depth/image_rect', name+'/stereo/image_raw'),
-                                ('intensity/image_rect', name+'/right/image_rect'),
-                                ('intensity/camera_info', name+'/stereo/camera_info'),
-                                ('points', name+'/points')
-                                ],
-                    parameters=[{"queue_size" : 1, "exact_sync": False}],
-                    ),
+                ComposableNode(
+                    package='image_proc',
+                    plugin='image_proc::ResizeNode',
+                    name='depth_image_resize_node',
+                    remappings=[("image/image_raw", name+"/stereo/image_raw"),
+                                ("image/camera_info", name+"/stereo/camera_info"),
+                                ("resize/camera_info", name+"/stereo_resized/camera_info"),
+                                ("resize/image_raw", name+"/stereo_resized/image_raw")],
+                    parameters=[{
+                        "scale_height" : scaleImages, "scale_width" : scaleImages, 
+                        ### disable interpolation (0 = nearest neighbor) as linear interp between depth values is bad
+                        "interpolation" : 0
+                    }], 
+                ),
+                #             ComposableNode(
+                #             package='depth_image_proc',
+                #             plugin='depth_image_proc::PointCloudXyziNode',
+                #             name='point_cloud_xyzi',
+                #             remappings=[('depth/image_rect', name+'/stereo/image_raw'),
+                #                         ('intensity/image_rect', name+'/right/image_rect'),
+                #                         ('intensity/camera_info', name+'/stereo/camera_info'),
+                #                         ('points', name+'/points')
+                #                         ],
+                #             parameters=[{"queue_size" : 1, "exact_sync": False}],
+                #             ),
+                ComposableNode(
+                package='depth_image_proc',
+                plugin='depth_image_proc::PointCloudXyzNode',
+                name='point_cloud_xyz',
+                remappings=[('/image_rect', name+"/stereo_resized/image_raw"),
+                            ('/camera_info', name+"/stereo/camera_info"),
+                            ('/points', name+'/points')
+                            ],
+                parameters=[{"queue_size" : 10, "exact_sync": False, "throttle_hz": 10.0}],
+                ),
             ],
         ),
-
-    #     LoadComposableNodes(
-    #         target_container=name+"_container",
-    #         composable_node_descriptions=[
-    #                 ComposableNode(
-    #                 package='depth_image_proc',
-    #                 plugin='depth_image_proc::PointCloudXyzNode',
-    #                 name='point_cloud_xyz',
-    #                 remappings=[('/image_rect', name+'/stereo/image_raw'),
-    #                             ('/camera_info', name+'/stereo/camera_info'),
-    #                             ('/points', name+'/points')
-    #                             ],
-    #                 parameters=[{"queue_size" : 1, "exact_sync": False}],
-    #                 ),
-    #         ],
-    #     ),
-
     ]
 
 
@@ -78,7 +88,8 @@ def generate_launch_description():
         DeclareLaunchArgument("cam_roll", default_value="0.0"),
         DeclareLaunchArgument("cam_pitch", default_value="0.0"),
         DeclareLaunchArgument("cam_yaw", default_value="0.0"),
-        DeclareLaunchArgument("params_file", default_value=os.path.join(depthai_prefix, 'config', 'pcl.yaml')),
+        # DeclareLaunchArgument("params_file", default_value=os.path.join(depthai_prefix, 'config', 'pcl.yaml')),
+        DeclareLaunchArgument("params_file", default_value=os.path.join(depthai_prefix, 'config', 'rgbd.yaml')),
         DeclareLaunchArgument("use_rviz", default_value="False"),
     ]
 

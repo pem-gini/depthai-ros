@@ -10,8 +10,7 @@ from launch_ros.descriptions import ComposableNode
 from launch.conditions import IfCondition
 
 # scaleImages = 1.0
-# scaleImages = 0.25
-scaleImages = 0.125
+scaleImages = 0.5
 
 def launch_setup(context, *args, **kwargs):
     params_file = LaunchConfiguration("params_file")
@@ -90,7 +89,7 @@ def launch_setup(context, *args, **kwargs):
                                 ('rgb/image_rect_color', name+"/rgb_resized/image_raw"),
                                 ('rgb/camera_info', name+"/rgb_resized/camera_info"),
                                 ('points', name+'/points')],
-                    parameters=[{"queue_size" : 1, "exact_sync": False}],
+                    parameters=[{"queue_size" : 30, "exact_sync": False}],
                     ),
             ],
         ),
