@@ -1,6 +1,36 @@
 /oak:
   ros__parameters:
     camera:
-      i_nn_type: none
+      # i_nn_type: none
+      i_nn_type: rgb
+      i_fps: 10.0
+
     stereo:
-      i_subpixel: true
+      i_stereo_conf_threshold: 80
+      i_subpixel: false
+      i_depth_filter_size: 7 ### kernel size in pixels
+      #i_depth_preset: HIGH_ACCURACY ### Prefers accuracy over density. More invalid depth values, but less outliers.
+      # i_depth_preset: HIGH_DENSITY ###Prefers density over accuracy. Less invalid depth values, but more outliers.
+      i_lr_check: true ### Left-Right Check or LR-Check is used to remove incorrectly calculated disparity pixels due to occlusions at object borders (Left and Right camera views are slightly different).
+      i_lrc_threshold: 10
+      i_fps: 10.0
+
+      ### https://docs.luxonis.com/projects/api/en/latest/tutorials/configuring-stereo-depth/
+      i_enable_decimation_filter: true
+      i_decimation_filter_decimation_mode: NON_ZERO_MEAN ### "PIXEL_SKIPPING", "NON_ZERO_MEDIAN", "NON_ZERO_MEAN"
+      i_decimation_filter_decimation_factor: 4 ### default 1, max 4
+
+    rgb:
+      i_fps: 10.0
+
+    left:
+      i_publish_topic: true
+      i_fps: 10.0
+    right:
+      i_publish_topic: true
+      i_fps: 10.0
+
+    nn:
+      i_nn_config_path: depthai_ros_driver/segmentation
+      i_enable_passthrough: true
+

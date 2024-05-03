@@ -77,6 +77,7 @@ file(GLOB LIB_SRC
 )
 
 add_library(${PROJECT_NAME} SHARED ${LIB_SRC})
+set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 ament_target_dependencies(${PROJECT_NAME}
   ${dependencies})
