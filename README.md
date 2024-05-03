@@ -643,3 +643,6 @@ For easier development inside isolated workspace, one can use Visual Studio Code
       i_width: 1280
     use_sim_time: false
 ```
+
+You can find the newest documentation [here](https://docs-beta.luxonis.com/software/ros/depthai-ros/intro/)
+
