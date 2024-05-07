@@ -67,7 +67,7 @@ def launch_setup(context, *args, **kwargs):
                 plugin='depth_image_proc::PointCloudXyzNode',
                 name='point_cloud_xyz',
                 remappings=[('/image_rect', name+"/stereo_resized/image_raw"),
-                            ('/camera_info', name+"/stereo/camera_info"),
+                            ('/camera_info', name+"/stereo_resized/camera_info"),
                             ('/points', name+'/points')
                             ],
                 parameters=[{"queue_size" : 10, "exact_sync": False, "throttle_hz": 10.0}],
