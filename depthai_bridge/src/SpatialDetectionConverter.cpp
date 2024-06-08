@@ -66,6 +66,7 @@ void SpatialDetectionConverter::toRosMsg(std::shared_ptr<dai::SpatialImgDetectio
         opDetectionMsg.detections[i].results[0].score = inNetData->detections[i].confidence;
 #endif
 #ifdef IS_HUMBLE
+        opDetectionMsg.detections[i].results[0].score = inNetData->detections[i].confidence;
         opDetectionMsg.detections[i].bbox.center.position.x = xCenter;
         opDetectionMsg.detections[i].bbox.center.position.y = yCenter;
 #else
