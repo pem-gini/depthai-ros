@@ -34,7 +34,10 @@ const std::vector<std::string> label_map = {
     "laptop",        "mouse",        "remote",        "keyboard",      "cell phone",  "microwave",   "oven",        "toaster",      "sink",
     "refrigerator",  "book",         "clock",         "vase",          "scissors",    "teddy bear",  "hair drier",  "toothbrush"};
 
-dai::Pipeline createPipeline(bool syncNN, bool subpixel, std::string nnPath, int confidence, int LRchecktresh, std::string resolution) {
+int downscaledWidth = 416;
+int downscaleHeight = 416;
+
+dai::Pipeline createPipeline(int fps, bool syncNN, bool subpixel, std::string nnPath, int confidence, int LRchecktresh, std::string resolution) {
     dai::Pipeline pipeline;
     dai::node::MonoCamera::Properties::SensorResolution monoResolution;
     auto colorCam = pipeline.create<dai::node::ColorCamera>();
@@ -52,10 +55,11 @@ dai::Pipeline createPipeline(bool syncNN, bool subpixel, std::string nnPath, int
     xoutNN->setStreamName("detections");
     xoutDepth->setStreamName("depth");
 
-    colorCam->setPreviewSize(416, 416);
+    colorCam->setPreviewSize(downscaledWidth, downscaleHeight);
     colorCam->setResolution(dai::ColorCameraProperties::SensorResolution::THE_1080_P);
     colorCam->setInterleaved(false);
     colorCam->setColorOrder(dai::ColorCameraProperties::ColorOrder::BGR);
+    colorCam->setFps(fps);
 
     if(resolution == "720p") {
         monoResolution = dai::node::MonoCamera::Properties::SensorResolution::THE_720_P;
@@ -72,8 +76,10 @@ dai::Pipeline createPipeline(bool syncNN, bool subpixel, std::string nnPath, int
 
     monoLeft->setResolution(monoResolution);
     monoLeft->setBoardSocket(dai::CameraBoardSocket::CAM_B);
+    monoLeft->setFps(fps);
     monoRight->setResolution(monoResolution);
     monoRight->setBoardSocket(dai::CameraBoardSocket::CAM_C);
+    monoRight->setFps(fps);
 
     /// setting node configs
     stereo->initialConfig.setConfidenceThreshold(confidence);
@@ -125,6 +131,7 @@ int main(int argc, char** argv) {
     bool syncNN, subpixel;
     int confidence = 200, LRchecktresh = 5;
     std::string monoResolution = "400p";
+    int fps;
 
     node->declare_parameter("tf_prefix", "oak");
     node->declare_parameter("camera_param_uri", camera_param_uri);
@@ -135,6 +142,7 @@ int main(int argc, char** argv) {
     node->declare_parameter("LRchecktresh", LRchecktresh);
     node->declare_parameter("monoResolution", monoResolution);
     node->declare_parameter("resourceBaseFolder", "");
+    node->declare_parameter("fps", 24);
 
     node->get_parameter("tf_prefix", tfPrefix);
     node->get_parameter("camera_param_uri", camera_param_uri);
@@ -144,6 +152,7 @@ int main(int argc, char** argv) {
     node->get_parameter("LRchecktresh", LRchecktresh);
     node->get_parameter("monoResolution", monoResolution);
     node->get_parameter("resourceBaseFolder", resourceBaseFolder);
+    node->get_parameter("fps", fps);
 
     if(resourceBaseFolder.empty()) {
         throw std::runtime_error("Send the path to the resouce folder containing NNBlob in \'resourceBaseFolder\' ");
@@ -156,7 +165,7 @@ int main(int argc, char** argv) {
     }
 
     nnPath = resourceBaseFolder + "/" + nnName;
-    dai::Pipeline pipeline = createPipeline(syncNN, subpixel, nnPath, confidence, LRchecktresh, monoResolution);
+    dai::Pipeline pipeline = createPipeline(fps, syncNN, subpixel, nnPath, confidence, LRchecktresh, monoResolution);
     dai::Device device(pipeline);
 
     auto colorQueue = device.getOutputQueue("preview", 30, false);
@@ -202,7 +211,13 @@ int main(int argc, char** argv) {
                                                                                        rgbCameraInfo,
                                                                                        "color");
 
-    dai::rosBridge::SpatialDetectionConverter detConverter(tfPrefix + "_rgb_camera_optical_frame", width, height, false);
+    int spatialWidth = downscaledWidth;
+    int spatialHeight = downscaleHeight;
+    if(syncNN){
+        spatialWidth = width;
+        spatialHeight = height;
+    }
+    dai::rosBridge::SpatialDetectionConverter detConverter(tfPrefix + "_rgb_camera_optical_frame", spatialWidth, spatialHeight, false);
     dai::rosBridge::BridgePublisher<depthai_ros_msgs::msg::SpatialDetectionArray, dai::SpatialImgDetections> detectionPublish(
         detectionQueue,
         node,
