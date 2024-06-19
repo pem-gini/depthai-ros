@@ -57,40 +57,55 @@ def launch_setup(context, *args, **kwargs):
         LoadComposableNodes(
             target_container=name+"_container",
             composable_node_descriptions=[
-                    ComposableNode(
-                        package='image_proc',
-                        plugin='image_proc::ResizeNode',
-                        name='depth_image_resize_node',
-                        remappings=[("image/image_raw", name+"/stereo/image_raw"),
-                                    ("image/camera_info", name+"/stereo/camera_info"),
-                                    ("resize/camera_info", name+"/stereo_resized/camera_info"),
-                                    ("resize/image_raw", name+"/stereo_resized/image_raw")],
-                        parameters=[{
-                            "scale_height" : scaleImages, "scale_width" : scaleImages, 
-                            ### disable interpolation (0 = nearest neighbor) as linear interp between depth values is bad
-                            "interpolation" : 0
-                        }], 
-                    ),
-                    ComposableNode(
-                        package='image_proc',
-                        plugin='image_proc::ResizeNode',
-                        name='rgb_image_resize_node',
-                        remappings=[("image/image_raw", rgb_topic_name),
-                                    ("image/camera_info", name+"/rgb/camera_info"),
-                                    ("resize/camera_info", name+"/rgb_resized/camera_info"),
-                                    ("resize/image_raw", name+"/rgb_resized/image_raw")],
-                        parameters=[{"scale_height" : scaleImages, "scale_width" : scaleImages}],
-                    ),
+                    ################################################################################
+                    #### enable downscale of image and pcl transformer
+                    # ComposableNode(
+                    #     package='image_proc',
+                    #     plugin='image_proc::ResizeNode',
+                    #     name='depth_image_resize_node',
+                    #     remappings=[("image/image_raw", name+"/stereo/image_raw"),
+                    #                 ("image/camera_info", name+"/stereo/camera_info"),
+                    #                 ("resize/camera_info", name+"/stereo_resized/camera_info"),
+                    #                 ("resize/image_raw", name+"/stereo_resized/image_raw")],
+                    #     parameters=[{
+                    #         "scale_height" : scaleImages, "scale_width" : scaleImages, 
+                    #         ### disable interpolation (0 = nearest neighbor) as linear interp between depth values is bad
+                    #         "interpolation" : 0
+                    #     }], 
+                    # ),
+                    # ComposableNode(
+                    #     package='image_proc',
+                    #     plugin='image_proc::ResizeNode',
+                    #     name='rgb_image_resize_node',
+                    #     remappings=[("image/image_raw", rgb_topic_name),
+                    #                 ("image/camera_info", name+"/rgb/camera_info"),
+                    #                 ("resize/camera_info", name+"/rgb_resized/camera_info"),
+                    #                 ("resize/image_raw", name+"/rgb_resized/image_raw")],
+                    #     parameters=[{"scale_height" : scaleImages, "scale_width" : scaleImages}],
+                    # ),
+                    # ComposableNode(
+                    # package='depth_image_proc',
+                    # plugin='depth_image_proc::PointCloudXyzrgbNode',
+                    # name='point_cloud_xyzrgb_node',
+                    # remappings=[('depth_registered/image_rect', name+'/stereo_resized/image_raw'),
+                    #             ('rgb/image_rect_color', name+"/rgb_resized/image_raw"),
+                    #             ('rgb/camera_info', name+"/rgb_resized/camera_info"),
+                    #             ('points', name+'/points')],
+                    # parameters=[{"queue_size" : 30, "exact_sync": False}],
+                    # ),
+                    ################################################################################
+                    #### enable pcl transformer on direct output
                     ComposableNode(
                     package='depth_image_proc',
                     plugin='depth_image_proc::PointCloudXyzrgbNode',
                     name='point_cloud_xyzrgb_node',
-                    remappings=[('depth_registered/image_rect', name+'/stereo_resized/image_raw'),
-                                ('rgb/image_rect_color', name+"/rgb_resized/image_raw"),
-                                ('rgb/camera_info', name+"/rgb_resized/camera_info"),
+                    remappings=[('depth_registered/image_rect', name+'/stereo/image_raw'),
+                                ('rgb/image_rect_color', name+"/rgb/image_raw"),
+                                ('rgb/camera_info', name+"/rgb/camera_info"),
                                 ('points', name+'/points')],
                     parameters=[{"queue_size" : 30, "exact_sync": False}],
                     ),
+
             ],
         ),
     ]

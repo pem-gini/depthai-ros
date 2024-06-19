@@ -1,0 +1,106 @@
+###
+###https://docs.luxonis.com/software/ros/depthai-ros/driver/
+###
+
+### we have to kind of emuate this pipeline
+###
+###    camRgb.setPreviewSize(416, 416)
+###    camRgb.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
+###    camRgb.setInterleaved(False)
+###    camRgb.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
+###    
+###    monoLeft.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P)
+###    monoLeft.setCamera("left")
+###    monoRight.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P)
+###    monoRight.setCamera("right")
+###    
+###    # setting node configs
+###    stereo.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.HIGH_DENSITY)
+###    # Align depth map to the perspective of RGB camera, on which inference is done
+###    stereo.setDepthAlign(dai.CameraBoardSocket.CAM_A)
+###    stereo.setOutputSize(monoLeft.getResolutionWidth(), monoLeft.getResolutionHeight())
+###    stereo.setSubpixel(True)
+###
+###    monoLeft.out.link(stereo.left)
+###    monoRight.out.link(stereo.right)
+###    camRgb.preview.link(spatialDetectionNetwork.input)    
+###    stereo.depth.link(spatialDetectionNetwork.inputDepth)
+###    spatialDetectionNetwork.passthroughDepth.link(xoutDepth.input)
+###    
+/oak:
+  ros__parameters:
+    ### will be added via launchfile due to me not wanting to fix the path here
+    camera:
+      # i_nn_type: none
+      # i_nn_type: rgb
+      i_fps: 10.0
+      i_nn_type: spatial
+      i_pipeline_dump: true
+
+    ### https://docs.luxonis.com/projects/api/en/latest/tutorials/configuring-stereo-depth/
+    stereo:
+      i_align_depth: true
+      #i_board_socket_id: CAM_A ### (by default 0/CAM_A)
+      
+      ### iheight/iwidth will be decimate_filtered (4?) and the result has to be divisible by 16 cause of tinyyolo
+      ### the decimation filter is important, because it reduced what the filters do BEFORE resizing to output
+      ### so have hih computation time (slow and laggy camera images) when there is no decimation
+      ### ULTRA HIGH RESOLUTION
+      ###   16(needed) * 20(multiplier) * 4(decimation) = 1280?
+      ### HIGH RESOLUTION
+      ###   16(needed) * 10(multiplier) * 4(decimation) = 640?
+      ### LOW/MEDIUM RESOLUTION
+      ###   16(needed) * 5(multiplier) * 4(decimation) = 320?
+      ### VERY LOW RESOLUTION
+      ###   16(needed) * 2(multiplier) * 4(decimation) = 128?
+      ### multiplier is just a factor we can arbitrarily use for higher / lower result resolutions
+      i_height: 320
+      i_width: 320  
+
+      # i_stereo_conf_threshold: 40
+      i_stereo_conf_threshold: 200
+      i_subpixel: true
+      # i_depth_filter_size: 7 ### kernel size in pixels
+      #i_depth_preset: HIGH_ACCURACY ### Prefers accuracy over density. More invalid depth values, but less outliers.
+      i_depth_preset: HIGH_DENSITY ###Prefers density over accuracy. Less invalid depth values, but more outliers.
+      i_lr_check: true ### Left-Right Check or LR-Check is used to remove incorrectly calculated disparity pixels due to occlusions at object borders (Left and Right camera views are slightly different).
+      #LRC Threshold: Specifies the max difference between disparity pixels that will make the pixel invalidated (the higher threshold, the more points will get through)
+      # i_lrc_threshold: 2
+      i_lrc_threshold: 10
+      i_fps: 10.0
+      i_align_depth: true
+
+      ### added filter
+      i_enable_decimation_filter: true
+      i_decimation_filter_decimation_mode: NON_ZERO_MEDIAN ### "PIXEL_SKIPPING", "NON_ZERO_MEDIAN", "NON_ZERO_MEAN"
+      i_decimation_filter_decimation_factor: 4 ### default 1, max 4
+      
+      i_enable_spatial_filter: true
+      i_spatial_filter_hole_filling_radius: 2
+      i_spatial_filter_alpha: 0.5
+      i_spatial_filter_delta: 20
+      i_spatial_filter_iterations: 1
+
+      i_enable_threshold_filter: true
+      i_threshold_filter_min_range: 400
+      i_threshold_filter_max_range: 10000
+
+      i_enable_speckle_filter: true
+      i_speckle_filter_speckle_range: 50
+
+    rgb:
+      i_fps: 10.0
+      # i_enable_preview: true
+      # i_preview_size: 416
+      # i_keep_preview_aspect_ratio: true
+
+    left:
+      # i_publish_topic: true
+      i_fps: 10.0
+      # i_resolution: 400P
+
+
+    right:
+      # i_publish_topic: true
+      i_fps: 10.0
+      # i_resolution: 400P
