@@ -216,6 +216,10 @@ int main(int argc, char** argv) {
     dai::Pipeline pipeline = createPipeline(fps, syncNN, subpixel, nnPath, confidence, LRchecktresh, monoResolution);
     RCLCPP_INFO(node->get_logger(), "  - connecting device ... ");
     dai::Device device(pipeline);
+    if(!device.getIrDrivers().empty()){
+        device.setIrLaserDotProjectorBrightness(500); // mA
+        device.setIrFloodLightBrightness(500); //mA
+    }
     RCLCPP_INFO(node->get_logger(), "  - defining queues ... ");
     auto colorQueue = device.getOutputQueue("preview", 30, false);
     auto depthQueue = device.getOutputQueue("depth", 30, false);
