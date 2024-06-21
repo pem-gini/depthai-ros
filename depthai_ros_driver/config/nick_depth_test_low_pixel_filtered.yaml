@@ -68,7 +68,6 @@
       # i_lrc_threshold: 2
       i_lrc_threshold: 10
       i_fps: 10.0
-      i_align_depth: true
 
       ### added filter
       i_enable_decimation_filter: true

@@ -105,6 +105,8 @@ dai_add_node_ros2(yolov4_node src/yolov4_publisher.cpp)
 dai_add_node_ros2(tracker_yolov4_node src/tracker_yolov4_publisher.cpp)
 dai_add_node_ros2(tracker_yolov4_spatial_node src/tracker_yolov4_spatial_publisher.cpp)
 
+dai_add_node_ros2(nick_yolov4_spatial_node src/nick_yolov4_spatial_publisher.cpp)
+
 target_compile_definitions(mobilenet_node PRIVATE BLOB_NAME="${mobilenet_blob_name}")
 target_compile_definitions(yolov4_spatial_node PRIVATE BLOB_NAME="${tiny_yolo_v4_blob_name}")
 target_compile_definitions(yolov4_node PRIVATE BLOB_NAME="${tiny_yolo_v4_blob_name}")
@@ -134,6 +136,9 @@ install(TARGETS
         feature_tracker
         tracker_yolov4_node
         tracker_yolov4_spatial_node
+
+        nick_yolov4_spatial_node
+
         DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
