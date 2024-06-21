@@ -277,10 +277,6 @@ int main(int argc, char** argv) {
     if (!nnPath.empty()) {
         int spatialWidth = downscaledWidth;
         int spatialHeight = downscaleHeight;
-        if(syncNN){
-            spatialWidth = width;
-            spatialHeight = height;
-        }
         spatialFrameId = tfPrefix + "_rgb_camera_optical_frame";
         detPub = node->template create_publisher<vision_msgs::msg::Detection3DArray>("/oak/nn/spatial_detections", 10);
         detectionQueue = device.getOutputQueue("detections", 30, false);
@@ -300,7 +296,7 @@ int main(int argc, char** argv) {
         // rclcpp::spin(node);
         /// ########################################################
         /// DEPTHAI CONVERTER TO GENERATE ROS2 vision_msgs type
-        detConverter = std::make_unique<dai::ros::SpatialDetectionConverter>(tfPrefix + "_camera_optical_frame", width, height, false);
+        detConverter = std::make_unique<dai::ros::SpatialDetectionConverter>(tfPrefix + "_camera_optical_frame", spatialWidth, spatialHeight, false);
         detectionQueue->addCallback(std::bind(&spatialCB, std::placeholders::_1, std::placeholders::_2));
     }
     RCLCPP_INFO(node->get_logger(), "  - spinning ... ");
