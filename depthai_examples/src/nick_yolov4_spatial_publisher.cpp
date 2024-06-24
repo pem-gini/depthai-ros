@@ -30,6 +30,9 @@ const std::vector<std::string> label_map = {
 int downscaledWidth = 416;
 int downscaleHeight = 416;
 
+int stereoWidth = 320;
+int stereoHeight = 320;
+
 dai::Pipeline createPipeline(int fps, bool syncNN, bool subpixel, std::string nnPath, int confidence, int LRchecktresh, std::string resolution) {
     dai::Pipeline pipeline;
     dai::node::MonoCamera::Properties::SensorResolution monoResolution;
@@ -93,7 +96,7 @@ dai::Pipeline createPipeline(int fps, bool syncNN, bool subpixel, std::string nn
     // ### VERY LOW RESOLUTION
     // ###   16(needed) * 2(multiplier) * 4(decimation) = 128?
     // ### multiplier is just a factor we can arbitrarily use for higher / lower result resolutions
-    stereo->setOutputSize(320, 320);
+    stereo->setOutputSize(stereoWidth, stereoHeight);
     /// grab raw config
     auto config = stereo->initialConfig.get();
     /// median filter
@@ -265,7 +268,7 @@ int main(int argc, char** argv) {
         std::string("/oak/rgb")
     );
     dai::rosBridge::ImageConverter depthConverter(tfPrefix + "_right_camera_optical_frame", true);
-    auto rightCameraInfo = depthConverter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::CAM_C, width, height);
+    auto rightCameraInfo = depthConverter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::CAM_C, stereoWidth, stereoHeight);
     dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> depthPublish(
         depthQueue,
         node,
