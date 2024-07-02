@@ -220,8 +220,8 @@ int main(int argc, char** argv) {
     RCLCPP_INFO(node->get_logger(), "  - connecting device ... ");
     dai::Device device(pipeline);
     if(!device.getIrDrivers().empty()){
-        device.setIrLaserDotProjectorBrightness(500); // mA
-        device.setIrFloodLightBrightness(500); //mA
+        device.setIrLaserDotProjectorBrightness(800); // mA
+        device.setIrFloodLightBrightness(800); //mA
     }
     RCLCPP_INFO(node->get_logger(), "  - defining queues ... ");
     auto colorQueue = device.getOutputQueue("preview", 30, false);

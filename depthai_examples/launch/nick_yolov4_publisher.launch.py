@@ -36,7 +36,7 @@ def generate_launch_description():
 
     nnPath             = LaunchConfiguration('nnPath', default = "")
     resourceBaseFolder = LaunchConfiguration('resourceBaseFolder', default = default_resources_path)
-    confidence         = LaunchConfiguration('confidence',        default = 200)
+    confidence         = LaunchConfiguration('confidence',        default = 100)
     lrCheckTresh       = LaunchConfiguration('lrCheckTresh',      default = 10)
     monoResolution     = LaunchConfiguration('monoResolution',  default = '400p')
 
