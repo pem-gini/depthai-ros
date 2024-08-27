@@ -30,8 +30,8 @@ const std::vector<std::string> label_map = {
 int downscaledWidth = 416;
 int downscaleHeight = 416;
 
-int stereoWidth = 320;
-int stereoHeight = 320;
+int stereoWidth = 128;
+int stereoHeight = 128;
 
 dai::Pipeline createPipeline(int fps, bool syncNN, bool subpixel, std::string nnPath, int confidence, int LRchecktresh, std::string resolution) {
     dai::Pipeline pipeline;
